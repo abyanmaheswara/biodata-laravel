@@ -15,8 +15,9 @@ class PersonalData extends Model
     // [PENTING] Ini obat error "Array to string conversion"
     // Ini nyuruh Laravel: "Eh, kalau ada array di kolom ini, ubah jadi JSON pas disimpen!"
     protected $casts = [
-        'skills' => 'array',
-        'experience' => 'array',
+        'skills_and_expertise' => 'array',
+        'work_experience' => 'array',
         'education' => 'array',
+        'date_of_birth' => 'date',
     ];
 }

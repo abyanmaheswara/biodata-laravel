@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Personal Data <?php echo e($personalData['name']); ?></title>
+    <title>Personal Data <?php echo e($personalData ? $personalData->name : 'Biodata'); ?></title>
     
     <?php echo app('Illuminate\Foundation\Vite')(['resources/css/app.css', 'resources/js/app.js']); ?>
 
@@ -77,45 +77,52 @@
     <div class="container py-5">
         <div class="row justify-content-center">
             <div class="col-lg-10">
+
+            <?php if($personalData): ?>
                 <div class="card profile-card">
                     <div class="profile-header p-4">
-    <div class="d-flex justify-content-end">
-        <a href="<?php echo e(route('personal-data.edit')); ?>" class="btn btn-light btn-sm shadow-sm">
-            <i class="fas fa-edit me-1"></i> Ubah Data
-        </a>
-    </div>
-    
-    <div class="row align-items-center mt-2"> <div class="col-md-2 text-center mb-3 mb-md-0">
-            <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 100px; height: 100px;">
-                <span class="display-4 text-primary fw-bold">JD</span>
-            </div>
-        </div>
-        <div class="col-md-10">
-            <h1 class="mb-1"><?php echo e($personalData['name']); ?></h1>
-            <h4 class="mb-2 opacity-75"><?php echo e($personalData['title']); ?></h4>
-            <p class="mb-0"><?php echo e($personalData['summary']); ?></p>
-        </div>
-    </div>
-</div>
+                        <div class="d-flex justify-content-end">
+                            <a href="<?php echo e(route('personal-data.edit')); ?>" class="btn btn-light btn-sm shadow-sm">
+                                <i class="fas fa-edit me-1"></i> Ubah Data
+                            </a>
+                        </div>
+                        
+                        <div class="row align-items-center mt-2"> 
+                            <div class="col-md-2 text-center mb-3 mb-md-0">
+                                <?php if($personalData->profile_photo): ?>
+                                    <img src="<?php echo e(asset('storage/' . $personalData->profile_photo)); ?>" alt="Profile Photo" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;">
+                                <?php else: ?>
+                                    <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 100px; height: 100px;">
+                                        <span class="display-4 text-primary fw-bold">JD</span>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                            <div class="col-md-10">
+                                <h1 class="mb-1"><?php echo e($personalData->name); ?></h1>
+                                <h4 class="mb-2 opacity-75"><?php echo e($personalData->title); ?></h4>
+                                <p class="mb-0"><?php echo e($personalData->summary); ?></p>
+                            </div>
+                        </div>
+                    </div>
 
                     <div class="card-body p-4">
                         <div class="row mb-5">
                             <div class="col-md-12">
-                                <h3 class="section-title">Contact Information</h3>
+                                <h3 class="section-title">Informasi Kontak</h3>
                                 <div class="row">
                                     <div class="col-md-6">
                                         <ul class="list-unstyled">
-                                            <li class="mb-2"><i class="fas fa-envelope me-2"></i><strong>Email:</strong> <?php echo e($personalData['email']); ?></li>
-                                            <li class="mb-2"><i class="fas fa-phone me-2"></i><strong>Phone:</strong> <?php echo e($personalData['phone']); ?></li>
-                                            <li class="mb-2"><i class="fas fa-birthday-cake me-2"></i><strong>Date of Birth:</strong> <?php echo e($personalData['birth_date']); ?></li>
+                                            <li class="mb-2"><i class="fas fa-envelope me-2"></i><strong>Email:</strong> <?php echo e($personalData->email); ?></li>
+                                            <li class="mb-2"><i class="fas fa-phone me-2"></i><strong>Telepon:</strong> <?php echo e($personalData->phone); ?></li>
+                                            <li class="mb-2"><i class="fas fa-birthday-cake me-2"></i><strong>Tanggal Lahir:</strong> <?php echo e($personalData->date_of_birth ? \Carbon\Carbon::parse($personalData->date_of_birth)->format('d F Y') : '-'); ?></li>
+                                            <li class="mb-2"><i class="fab fa-linkedin me-2"></i><strong>LinkedIn:</strong> <a href="<?php echo e($personalData->linkedin); ?>" target="_blank"><?php echo e($personalData->linkedin); ?></a></li>
                                         </ul>
                                     </div>
                                     <div class="col-md-6">
                                         <ul class="list-unstyled">
-                                            <li class="mb-2"><i class="fas fa-map-marker-alt me-2"></i><strong>Address:</strong> <?php echo e($personalData['address']); ?></li>
-                                            <li class="mb-2"><i class="fas fa-globe me-2"></i><strong>Nationality:</strong> <?php echo e($personalData['nationality']); ?></li>
-                                            <li class="mb-2"><i class="fab fa-linkedin me-2"></i><strong>LinkedIn:</strong> <?php echo e($personalData['linkedin']); ?></li>
-                                            <li class="mb-2"><i class="fab fa-github me-2"></i><strong>GitHub:</strong> <?php echo e($personalData['github']); ?></li>
+                                            <li class="mb-2"><i class="fas fa-map-marker-alt me-2"></i><strong>Alamat:</strong> <?php echo e($personalData->address); ?></li>
+                                            <li class="mb-2"><i class="fas fa-globe me-2"></i><strong>Kewarganegaraan:</strong> <?php echo e($personalData->nationality); ?></li>
+                                            <li class="mb-2"><i class="fab fa-github me-2"></i><strong>GitHub:</strong> <a href="<?php echo e($personalData->github); ?>" target="_blank"><?php echo e($personalData->github); ?></a></li>
                                         </ul>
                                     </div>
                                 </div>
@@ -124,48 +131,64 @@
 
                         <div class="row mb-5">
                             <div class="col-md-12">
-                                <h3 class="section-title">Skills & Expertise</h3>
+                                <h3 class="section-title">Keahlian & Keahlian</h3>
                                 <div>
-                                    <?php $__currentLoopData = $personalData['skills']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $skill): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                        <span class="skill-badge"><?php echo e($skill); ?></span>
-                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                    <?php if($personalData->skills_and_expertise && count($personalData->skills_and_expertise) > 0 && $personalData->skills_and_expertise[0] != ""): ?>
+                                        <?php $__currentLoopData = $personalData->skills_and_expertise; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $skill): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <span class="skill-badge"><?php echo e($skill); ?></span>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                    <?php else: ?>
+                                        <p>Tidak ada keahlian yang tercantum.</p>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </div>
 
                         <div class="row mb-5">
                             <div class="col-md-12">
-                                <h3 class="section-title">Work Experience</h3>
-                                <?php $__currentLoopData = $personalData['experience']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $exp): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                    <div class="timeline-item">
-                                        <div>
-                                            <h5 class="mb-0"><?php echo e($exp['position']); ?></h5>
-                                            <p class="text-muted mb-1"><?php echo e($exp['company']); ?></p>
-                                            <p class="text-primary mb-2"><?php echo e($exp['period']); ?></p>
-                                            <p class="mb-0"><?php echo e($exp['description']); ?></p>
+                                <h3 class="section-title">Pengalaman Kerja</h3>
+                                <?php if($personalData->work_experience && count($personalData->work_experience) > 0 && $personalData->work_experience[0] != ""): ?>
+                                    <?php $__currentLoopData = $personalData->work_experience; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $exp): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <div class="timeline-item">
+                                            <div>
+                                                <p class="mb-0"><?php echo e($exp); ?></p>
+                                            </div>
                                         </div>
-                                    </div>
-                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                <?php else: ?>
+                                    <p>Tidak ada pengalaman kerja yang tercantum.</p>
+                                <?php endif; ?>
                             </div>
                         </div>
 
                         <div class="row">
                             <div class="col-md-12">
-                                <h3 class="section-title">Education</h3>
-                                <?php $__currentLoopData = $personalData['education']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $edu): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                    <div class="timeline-item">
-                                        <div>
-                                            <h5 class="mb-0"><?php echo e($edu['degree']); ?></h5>
-                                            <p class="text-muted mb-1"><?php echo e($edu['institution']); ?></p>
-                                            <p class="text-primary mb-2"><?php echo e($edu['period']); ?></p>
-                                            <p class="mb-0"><?php echo e($edu['description']); ?></p>
+                                <h3 class="section-title">Pendidikan</h3>
+                                <?php if($personalData->education && count($personalData->education) > 0 && $personalData->education[0] != ""): ?>
+                                    <?php $__currentLoopData = $personalData->education; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $edu): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <div class="timeline-item">
+                                            <div>
+                                                <p class="mb-0"><?php echo e($edu); ?></p>
+                                            </div>
                                         </div>
-                                    </div>
-                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                <?php else: ?>
+                                    <p>Tidak ada pendidikan yang tercantum.</p>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
                 </div>
+            <?php else: ?>
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Data Belum Tersedia</h5>
+                        <p class="card-text">Silakan tambahkan data pribadi Anda terlebih dahulu.</p>
+                        <a href="<?php echo e(route('personal-data.edit')); ?>" class="btn btn-primary">Tambah Data</a>
+                    </div>
+                </div>
+            <?php endif; ?>
+
             </div>
         </div>
     </div>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Personal Data {{ $personalData['name'] }}</title>
+    <title>Personal Data {{ $personalData ? $personalData->name : 'Biodata' }}</title>
     
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -77,45 +77,52 @@
     <div class="container py-5">
         <div class="row justify-content-center">
             <div class="col-lg-10">
+
+            @if($personalData)
                 <div class="card profile-card">
                     <div class="profile-header p-4">
-    <div class="d-flex justify-content-end">
-        <a href="{{ route('personal-data.edit') }}" class="btn btn-light btn-sm shadow-sm">
-            <i class="fas fa-edit me-1"></i> Ubah Data
-        </a>
-    </div>
-    
-    <div class="row align-items-center mt-2"> <div class="col-md-2 text-center mb-3 mb-md-0">
-            <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 100px; height: 100px;">
-                <span class="display-4 text-primary fw-bold">JD</span>
-            </div>
-        </div>
-        <div class="col-md-10">
-            <h1 class="mb-1">{{ $personalData['name'] }}</h1>
-            <h4 class="mb-2 opacity-75">{{ $personalData['title'] }}</h4>
-            <p class="mb-0">{{ $personalData['summary'] }}</p>
-        </div>
-    </div>
-</div>
+                        <div class="d-flex justify-content-end">
+                            <a href="{{ route('personal-data.edit') }}" class="btn btn-light btn-sm shadow-sm">
+                                <i class="fas fa-edit me-1"></i> Ubah Data
+                            </a>
+                        </div>
+                        
+                        <div class="row align-items-center mt-2"> 
+                            <div class="col-md-2 text-center mb-3 mb-md-0">
+                                @if($personalData->profile_photo)
+                                    <img src="{{ asset('storage/' . $personalData->profile_photo) }}" alt="Profile Photo" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;">
+                                @else
+                                    <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 100px; height: 100px;">
+                                        <span class="display-4 text-primary fw-bold">JD</span>
+                                    </div>
+                                @endif
+                            </div>
+                            <div class="col-md-10">
+                                <h1 class="mb-1">{{ $personalData->name }}</h1>
+                                <h4 class="mb-2 opacity-75">{{ $personalData->title }}</h4>
+                                <p class="mb-0">{{ $personalData->summary }}</p>
+                            </div>
+                        </div>
+                    </div>
 
                     <div class="card-body p-4">
                         <div class="row mb-5">
                             <div class="col-md-12">
-                                <h3 class="section-title">Contact Information</h3>
+                                <h3 class="section-title">Informasi Kontak</h3>
                                 <div class="row">
                                     <div class="col-md-6">
                                         <ul class="list-unstyled">
-                                            <li class="mb-2"><i class="fas fa-envelope me-2"></i><strong>Email:</strong> {{ $personalData['email'] }}</li>
-                                            <li class="mb-2"><i class="fas fa-phone me-2"></i><strong>Phone:</strong> {{ $personalData['phone'] }}</li>
-                                            <li class="mb-2"><i class="fas fa-birthday-cake me-2"></i><strong>Date of Birth:</strong> {{ $personalData['birth_date'] }}</li>
+                                            <li class="mb-2"><i class="fas fa-envelope me-2"></i><strong>Email:</strong> {{ $personalData->email }}</li>
+                                            <li class="mb-2"><i class="fas fa-phone me-2"></i><strong>Telepon:</strong> {{ $personalData->phone }}</li>
+                                            <li class="mb-2"><i class="fas fa-birthday-cake me-2"></i><strong>Tanggal Lahir:</strong> {{ $personalData->date_of_birth ? \Carbon\Carbon::parse($personalData->date_of_birth)->format('d F Y') : '-' }}</li>
+                                            <li class="mb-2"><i class="fab fa-linkedin me-2"></i><strong>LinkedIn:</strong> <a href="{{ $personalData->linkedin }}" target="_blank">{{ $personalData->linkedin }}</a></li>
                                         </ul>
                                     </div>
                                     <div class="col-md-6">
                                         <ul class="list-unstyled">
-                                            <li class="mb-2"><i class="fas fa-map-marker-alt me-2"></i><strong>Address:</strong> {{ $personalData['address'] }}</li>
-                                            <li class="mb-2"><i class="fas fa-globe me-2"></i><strong>Nationality:</strong> {{ $personalData['nationality'] }}</li>
-                                            <li class="mb-2"><i class="fab fa-linkedin me-2"></i><strong>LinkedIn:</strong> {{ $personalData['linkedin'] }}</li>
-                                            <li class="mb-2"><i class="fab fa-github me-2"></i><strong>GitHub:</strong> {{ $personalData['github'] }}</li>
+                                            <li class="mb-2"><i class="fas fa-map-marker-alt me-2"></i><strong>Alamat:</strong> {{ $personalData->address }}</li>
+                                            <li class="mb-2"><i class="fas fa-globe me-2"></i><strong>Kewarganegaraan:</strong> {{ $personalData->nationality }}</li>
+                                            <li class="mb-2"><i class="fab fa-github me-2"></i><strong>GitHub:</strong> <a href="{{ $personalData->github }}" target="_blank">{{ $personalData->github }}</a></li>
                                         </ul>
                                     </div>
                                 </div>
@@ -124,48 +131,64 @@
 
                         <div class="row mb-5">
                             <div class="col-md-12">
-                                <h3 class="section-title">Skills & Expertise</h3>
+                                <h3 class="section-title">Keahlian & Keahlian</h3>
                                 <div>
-                                    @foreach($personalData['skills'] as $skill)
-                                        <span class="skill-badge">{{ $skill }}</span>
-                                    @endforeach
+                                    @if($personalData->skills_and_expertise && count($personalData->skills_and_expertise) > 0 && $personalData->skills_and_expertise[0] != "")
+                                        @foreach($personalData->skills_and_expertise as $skill)
+                                            <span class="skill-badge">{{ $skill }}</span>
+                                        @endforeach
+                                    @else
+                                        <p>Tidak ada keahlian yang tercantum.</p>
+                                    @endif
                                 </div>
                             </div>
                         </div>
 
                         <div class="row mb-5">
                             <div class="col-md-12">
-                                <h3 class="section-title">Work Experience</h3>
-                                @foreach($personalData['experience'] as $exp)
-                                    <div class="timeline-item">
-                                        <div>
-                                            <h5 class="mb-0">{{ $exp['position'] }}</h5>
-                                            <p class="text-muted mb-1">{{ $exp['company'] }}</p>
-                                            <p class="text-primary mb-2">{{ $exp['period'] }}</p>
-                                            <p class="mb-0">{{ $exp['description'] }}</p>
+                                <h3 class="section-title">Pengalaman Kerja</h3>
+                                @if($personalData->work_experience && count($personalData->work_experience) > 0 && $personalData->work_experience[0] != "")
+                                    @foreach($personalData->work_experience as $exp)
+                                        <div class="timeline-item">
+                                            <div>
+                                                <p class="mb-0">{{ $exp }}</p>
+                                            </div>
                                         </div>
-                                    </div>
-                                @endforeach
+                                    @endforeach
+                                @else
+                                    <p>Tidak ada pengalaman kerja yang tercantum.</p>
+                                @endif
                             </div>
                         </div>
 
                         <div class="row">
                             <div class="col-md-12">
-                                <h3 class="section-title">Education</h3>
-                                @foreach($personalData['education'] as $edu)
-                                    <div class="timeline-item">
-                                        <div>
-                                            <h5 class="mb-0">{{ $edu['degree'] }}</h5>
-                                            <p class="text-muted mb-1">{{ $edu['institution'] }}</p>
-                                            <p class="text-primary mb-2">{{ $edu['period'] }}</p>
-                                            <p class="mb-0">{{ $edu['description'] }}</p>
+                                <h3 class="section-title">Pendidikan</h3>
+                                @if($personalData->education && count($personalData->education) > 0 && $personalData->education[0] != "")
+                                    @foreach($personalData->education as $edu)
+                                        <div class="timeline-item">
+                                            <div>
+                                                <p class="mb-0">{{ $edu }}</p>
+                                            </div>
                                         </div>
-                                    </div>
-                                @endforeach
+                                    @endforeach
+                                @else
+                                    <p>Tidak ada pendidikan yang tercantum.</p>
+                                @endif
                             </div>
                         </div>
                     </div>
                 </div>
+            @else
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Data Belum Tersedia</h5>
+                        <p class="card-text">Silakan tambahkan data pribadi Anda terlebih dahulu.</p>
+                        <a href="{{ route('personal-data.edit') }}" class="btn btn-primary">Tambah Data</a>
+                    </div>
+                </div>
+            @endif
+
             </div>
         </div>
     </div>

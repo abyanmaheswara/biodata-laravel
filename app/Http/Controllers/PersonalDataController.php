@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\PersonalData; // <--- Pastikan baris ini ada!
+use Illuminate\Support\Facades\Storage; // Tambahkan ini
 
 class PersonalDataController extends Controller
 {
@@ -12,6 +13,14 @@ class PersonalDataController extends Controller
     {
         // Ambil data pertama dari database
         $personalData = PersonalData::first(); 
+
+        // Decode JSON columns for display
+        if ($personalData) {
+            $personalData->skills_and_expertise = json_decode($personalData->skills_and_expertise, true);
+            $personalData->work_experience = json_decode($personalData->work_experience, true);
+            $personalData->education = json_decode($personalData->education, true);
+        }
+
         return view('personal-data.index', compact('personalData'));
     }
 
@@ -20,25 +29,65 @@ class PersonalDataController extends Controller
     {
         // Ambil data pertama untuk diedit
         $personalData = PersonalData::first();
+        
+        // Encode JSON columns back to string for form display
+        if ($personalData) {
+            $personalData->skills_and_expertise = implode(', ', $personalData->skills_and_expertise ?? []);
+            $personalData->work_experience = implode('\n\n', $personalData->work_experience ?? []);
+            $personalData->education = implode('\n\n', $personalData->education ?? []);
+        }
+
         return view('personal-data.edit', compact('personalData'));
     }
 
     // Memproses penyimpanan data (INI YANG TADI HILANG)
     public function update(Request $request)
     {
-        // Ambil data yang mau diedit
-        $data = PersonalData::first();
-
-        // Update datanya sesuai inputan form
-        $data->update([
-            'name'    => $request->name,
-            'title'   => $request->title,
-            'email'   => $request->email,
-            'phone'   => $request->phone,
-            'summary' => $request->summary,
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'title' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'phone' => 'required|string|max:20',
+            'summary' => 'nullable|string',
+            'date_of_birth' => 'nullable|date',
+            'address' => 'nullable|string|max:255',
+            'nationality' => 'nullable|string|max:255',
+            'linkedin' => 'nullable|url|max:255',
+            'github' => 'nullable|url|max:255',
+            'skills_and_expertise' => 'nullable|string',
+            'work_experience' => 'nullable|string',
+            'education' => 'nullable|string',
+            'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
-        // Kembali ke halaman utama setelah simpan
-        return redirect()->route('personal-data.index');
+        $dataToUpdate = $request->except('profile_photo');
+
+        if ($request->hasFile('profile_photo')) {
+            $data = PersonalData::first();
+            // Delete old photo if it exists
+            if ($data && $data->profile_photo && Storage::disk('public')->exists($data->profile_photo)) {
+                Storage::disk('public')->delete($data->profile_photo);
+            }
+            $path = $request->file('profile_photo')->store('profile_photos', 'public');
+            $dataToUpdate['profile_photo'] = $path;
+        }
+
+        // Convert arrays to JSON strings
+        if (isset($dataToUpdate['skills_and_expertise'])) {
+            $dataToUpdate['skills_and_expertise'] = json_encode(array_map('trim', explode(',', $dataToUpdate['skills_and_expertise'])));
+        }
+        if (isset($dataToUpdate['work_experience'])) {
+            $dataToUpdate['work_experience'] = json_encode(array_map('trim', preg_split('/\\r\\n|\\r|\\n/', $dataToUpdate['work_experience'])));
+        }
+        if (isset($dataToUpdate['education'])) {
+            $dataToUpdate['education'] = json_encode(array_map('trim', preg_split('/\\r\\n|\\r|\\n/', $dataToUpdate['education'])));
+        }
+
+        PersonalData::updateOrCreate(
+            ['id' => 1], // Assuming there's only one record to manage
+            $dataToUpdate
+        );
+
+        return redirect()->route('personal-data.index')->with('success', 'Data pribadi berhasil diperbarui!');
     }
 }
