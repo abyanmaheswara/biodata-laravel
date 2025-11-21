@@ -11,32 +11,16 @@ class PersonalDataController extends Controller
     // Menampilkan halaman utama (CV)
     public function index()
     {
-        // Ambil data pertama dari database
+        // Ambil data pertama dari database, biarkan Eloquent casts menangani konversi tipe data.
         $personalData = PersonalData::first(); 
-
-        // Decode JSON columns for display
-        if ($personalData) {
-            $personalData->skills_and_expertise = json_decode($personalData->skills_and_expertise, true);
-            $personalData->work_experience = json_decode($personalData->work_experience, true);
-            $personalData->education = json_decode($personalData->education, true);
-        }
-
         return view('personal-data.index', compact('personalData'));
     }
 
     // Menampilkan halaman form edit
     public function edit()
     {
-        // Ambil data pertama untuk diedit
+        // Ambil data pertama untuk diedit, biarkan Eloquent casts menangani konversi tipe data.
         $personalData = PersonalData::first();
-        
-        // Encode JSON columns back to string for form display
-        if ($personalData) {
-            $personalData->skills_and_expertise = implode(', ', $personalData->skills_and_expertise ?? []);
-            $personalData->work_experience = implode('\n\n', $personalData->work_experience ?? []);
-            $personalData->education = implode('\n\n', $personalData->education ?? []);
-        }
-
         return view('personal-data.edit', compact('personalData'));
     }
 
