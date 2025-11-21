@@ -133,9 +133,16 @@
                             <div class="col-md-12">
                                 <h3 class="section-title">Keahlian & Keahlian</h3>
                                 <div>
-                                    @if($personalData->skills_and_expertise && count($personalData->skills_and_expertise) > 0 && $personalData->skills_and_expertise[0] != "")
-                                        @foreach($personalData->skills_and_expertise as $skill)
-                                            <span class="skill-badge">{{ $skill }}</span>
+                                    {{-- FIX: Mengatasi Type Error jika data masih berupa JSON string --}}
+                                    @php
+                                        $skills = is_string($personalData->skills_and_expertise) ? json_decode($personalData->skills_and_expertise, true) : $personalData->skills_and_expertise;
+                                    @endphp
+                                    
+                                    @if($skills && is_countable($skills) && count($skills) > 0)
+                                        @foreach($skills as $skill)
+                                            @if(!empty($skill))
+                                                <span class="skill-badge">{{ $skill }}</span>
+                                            @endif
                                         @endforeach
                                     @else
                                         <p>Tidak ada keahlian yang tercantum.</p>
@@ -147,13 +154,20 @@
                         <div class="row mb-5">
                             <div class="col-md-12">
                                 <h3 class="section-title">Pengalaman Kerja</h3>
-                                @if($personalData->work_experience && count($personalData->work_experience) > 0 && $personalData->work_experience[0] != "")
-                                    @foreach($personalData->work_experience as $exp)
-                                        <div class="timeline-item">
-                                            <div>
-                                                <p class="mb-0">{{ $exp }}</p>
+                                {{-- FIX: Mengatasi Type Error jika data masih berupa JSON string --}}
+                                @php
+                                    $works = is_string($personalData->work_experience) ? json_decode($personalData->work_experience, true) : $personalData->work_experience;
+                                @endphp
+
+                                @if($works && is_countable($works) && count($works) > 0)
+                                    @foreach($works as $exp)
+                                        @if(!empty($exp))
+                                            <div class="timeline-item">
+                                                <div>
+                                                    <p class="mb-0">{{ $exp }}</p>
+                                                </div>
                                             </div>
-                                        </div>
+                                        @endif
                                     @endforeach
                                 @else
                                     <p>Tidak ada pengalaman kerja yang tercantum.</p>
@@ -164,22 +178,32 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <h3 class="section-title">Pendidikan</h3>
-                                @if($personalData->education && count($personalData->education) > 0 && $personalData->education[0] != "")
-                                    @foreach($personalData->education as $edu)
-                                        <div class="timeline-item">
-                                            <div>
-                                                <p class="mb-0">{{ $edu }}</p>
+                                {{-- FIX: Mengatasi Type Error dan Parse Error (unexpected else) --}}
+                                @php 
+                                    $eduList = is_string($personalData->education) 
+                                                ? json_decode($personalData->education, true) 
+                                                : $personalData->education; 
+                                @endphp
+
+                                @if($eduList && is_countable($eduList) && count($eduList) > 0)
+                                    @foreach($eduList as $edu)
+                                        @if(!empty($edu))
+                                            <div class="timeline-item">
+                                                <div>
+                                                    <p class="mb-0">{{ $edu }}</p>
+                                                </div>
                                             </div>
-                                        </div>
+                                        @endif
                                     @endforeach
                                 @else
                                     <p>Tidak ada pendidikan yang tercantum.</p>
                                 @endif
                             </div>
                         </div>
-                    </div>
-                </div>
+                    </div> {{-- Penutup card-body --}}
+                </div> {{-- Penutup card profile-card --}}
             @else
+                {{-- @else UTAMA --}}
                 <div class="card">
                     <div class="card-body text-center">
                         <h5 class="card-title">Data Belum Tersedia</h5>
@@ -188,7 +212,7 @@
                     </div>
                 </div>
             @endif
-
+            {{-- @endif UTAMA --}}
             </div>
         </div>
     </div>
